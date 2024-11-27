@@ -57,15 +57,15 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Build.loader.js?v=" + buildVersion;
+      var loaderUrl = buildUrl + "/Build.loader.js";
       var config = {
-        dataUrl: buildUrl + "/Build.data?v=" + buildVersion,
-        frameworkUrl: buildUrl + "/Build.framework.js?v=" + buildVersion,
-        codeUrl: buildUrl + "/Build.wasm?v=" + buildVersion,
+        dataUrl: buildUrl + "/Build.data.unityweb",
+        frameworkUrl: buildUrl + "/Build.framework.js.unityweb",
+        codeUrl: buildUrl + "/Build.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Uraga",
         productName: "Manor Defense Clicker",
-        productVersion: buildVersion,
+        productVersion: "0.1.18",
         showBanner: unityShowBanner,
       };
 
@@ -94,39 +94,23 @@
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
 
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
+        canvas.style.width = "1080px";
+        canvas.style.height = "1920px";
       }
 
       canvas.style.background = "url('" + buildUrl + "/Build.jpg') center / cover";
       loadingBar.style.display = "block";
-	  
+
       var script = document.createElement("script");
       script.src = loaderUrl;
-      script.setAttribute('nonce', Date.now().toString());
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-		  Telegram.WebApp.expand();
           progressBarFull.style.width = 100 * progress + "%";
               }).then((unityInstance) => {
-				gameInstance = unityInstance;
-				if(/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-					gameInstance.SendMessage('Platform', 'Set', "IOS");
-				}
-				else if(/Android/i.test(navigator.userAgent)) {
-					gameInstance.SendMessage('Platform', 'Set', "Android");
-				}
-				else {
-					gameInstance.SendMessage('Platform', 'Set', "Desktop");
-				}
-				const user = Telegram.WebApp.initDataUnsafe.user;
-				if (user && user.id) {
-					const userId = user.id;
-					const userName = user.first_name;
-					gameInstance.SendMessage('Telegram', 'SetUserID', userId.toString());
-					gameInstance.SendMessage('Telegram', 'SetUserName', userName);				
-				}
                 loadingBar.style.display = "none";
+                fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
               }).catch((message) => {
                 alert(message);
               });
